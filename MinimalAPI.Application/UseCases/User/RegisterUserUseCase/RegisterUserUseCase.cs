@@ -4,6 +4,7 @@ using MinimalAPI.Application.Utils.Token;
 using MinimalAPI.Domain.Entities;
 using MinimalAPI.Shared.Communication.Request;
 using MinimalAPI.Shared.Communication.Response;
+using MinimalAPI.Shared.Exceptions;
 
 namespace MinimalAPI.Application.UseCases.User.RegisterUserUseCase;
 
@@ -24,6 +25,12 @@ public class RegisterUserUseCase : IRegisterUserUseCase
         UserEntity entity = _mapper.Map<UserEntity>(request);
 
         IdentityResult isCreated = await _userManager.CreateAsync(entity, entity.PasswordHash);
+
+        if (!isCreated.Succeeded)
+        {
+            List<string> errorMessage = isCreated.Errors.Select(error => error.Description).ToList();
+            throw new ValidationErrorsExceptions(errorMessage, "Erro ao criar user");
+        }
 
         string token = _tokenController.GenerateToken(entity.Email);
 

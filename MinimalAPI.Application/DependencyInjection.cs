@@ -15,7 +15,6 @@ public static class DependencyInjection
     public static void AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         AddTokenConfiguration(services, configuration);
-        AddRedisConfiguration(services, configuration);
         AddTokenJWT(services, configuration);
         AddUseCases(services);
         AddServices(services);
@@ -63,16 +62,4 @@ public static class DependencyInjection
 
         services.AddScoped<ITokenController>(option => new TokenController(int.Parse(sectionTempoDeVida.Value), sectionKey.Value));
     }
-
-    private static void AddRedisConfiguration(IServiceCollection services, IConfiguration configuration)
-    { 
-        // Add Redis cache service
-        services.AddDistributedRedisCache(options =>
-        {
-            options.Configuration = configuration.GetConnectionString("Redis");
-            options.InstanceName = "MyApp:";
-        });
-
-    }
-
 }
